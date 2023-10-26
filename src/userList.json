@@ -1,0 +1,23 @@
+[
+    {
+      "id": "1",
+      "balances": {
+        "USD": 5000,
+        "GOOGLE": 10
+      }
+    },
+    {
+      "id": "2",
+      "balances": {
+        "USD": 5000,
+        "GOOGLE": 10
+      }
+    },
+    {
+      "id": "3",
+      "balances": {
+        "USD": 5000,
+        "GOOGLE": 10
+      }
+    }
+  ]
