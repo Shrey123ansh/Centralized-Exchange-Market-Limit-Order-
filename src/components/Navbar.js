@@ -1,25 +1,22 @@
 import React from 'react'
 
-import PropTypes from 'prop-types'
 
-
-const Navbar = (props) => {
+const Navbar = ({ activeTab, onTabClick }) => {
   return (
-    <div className="component3-container">
-      <span className="component3-text">{props.text}</span>
-      <span className="component3-text1">{props.text1}</span>
-    </div>
+    <>
+        {activeTab=== "LIMIT ORDER"?(
+        <div className="component3-container">
+        <button className="component3-text" onClick={() => onTabClick('LIMIT ORDER')}>LIMIT ORDER</button>
+        <button className="component3-text1" onClick={() => onTabClick('MARKET ORDER')}>MARKET ORDER</button>
+        </div>
+        ):(
+          <div className="component3-container">
+          <button className="component3-text1" onClick={() => onTabClick('LIMIT ORDER')}>LIMIT ORDER</button>
+          <button className="component3-text" onClick={() => onTabClick('MARKET ORDER')}>MARKET ORDER</button>
+          </div>
+      )}
+      </>
   )
-}
-
-Navbar.defaultProps = {
-  text: 'LIMIT ORDER',
-  text1: 'MARKET ORDER',
-}
-
-Navbar.propTypes = {
-  text: PropTypes.string,
-  text1: PropTypes.string,
 }
 
 export default Navbar

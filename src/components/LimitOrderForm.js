@@ -1,9 +1,7 @@
 import React from 'react'
 
-import PropTypes from 'prop-types'
 
-
-const OrderForm = (props) => {
+const LimitOrderForm = (props) => {
   return (
     <div className="component5-container">
       <div className="component5-container1">
@@ -54,4 +52,4 @@ const OrderForm = (props) => {
   )
 }
 
-export default OrderForm
+export default LimitOrderForm

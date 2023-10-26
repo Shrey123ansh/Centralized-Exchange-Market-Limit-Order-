@@ -5,7 +5,7 @@ export const ExchangeContext = React.createContext();
 
 export const ExchangeProvider = ({ children }) => {
   //CREATE ACCOUNT
-  const [error, setError] = useState({});
+  // const [error, setError] = useState({});
   const [bids, setBids] = useState([]);
   const [asks, setAsks] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState(userList[0].id);
@@ -16,12 +16,17 @@ export const ExchangeProvider = ({ children }) => {
     quantity: 0,
   });
 
-  
+  const [side, setSide] = useState("bid");
+  const [quantity, setQuantity] = useState("");
+  const [userId, setUserId] = useState("");
+  const [quote, setQuote] = useState(0);
+  const [error, setError] = useState(null);
+
   function handleBuyOffer(event) {
     event.preventDefault();
     if (!isFormValid()) return;
     let filledQuantity = order("bid", offer.price, offer.quantity);
-  
+
     let userId = selectedUserId;
     const updatedOffer = {
       ...offer,
@@ -30,13 +35,13 @@ export const ExchangeProvider = ({ children }) => {
     };
     setOffer(updatedOffer);
   }
-  
+
   function handleSellOffer(event) {
     event.preventDefault();
     if (!isFormValid()) return;
-  
+
     let filledQuantity = order("ask", offer.price, offer.quantity);
-  
+
     let userId = selectedUserId;
     const updatedOffer = {
       ...offer,
@@ -45,7 +50,40 @@ export const ExchangeProvider = ({ children }) => {
     };
     setOffer(updatedOffer);
   }
-  
+
+  const handleCalculateQuote = (side, quantity) => {
+    let remainingQuantity = quantity;
+    if (side === "bid") {
+      for (let i = asks.length - 1; i >= 0; i--) {
+        setAsks((prevAsks) => {
+          const newAsks = [...prevAsks];
+          newAsks[i].quantity -= remainingQuantity;
+          return newAsks;
+        });
+        flipBalance(
+          asks[i].selectedUserId,
+          userId,
+          Number(remainingQuantity),
+          asks[i].price
+        );
+      }
+    } else {
+      for (let i = bids.length - 1; i >= 0; i--) {
+        setBids((prevBids) => {
+          const newBids = [...prevBids];
+          newBids[i].quantity -= remainingQuantity;
+          return newBids;
+        });
+        flipBalance(
+          selectedUserId,
+          Number(bids[i].selectedUserId),
+          Number(remainingQuantity),
+          bids[i].price
+        );
+      }
+    }
+  };
+
   const order = (side, price, quantity) => {
     const remainingQty = fillOrders(side, price, quantity, selectedUserId);
     if (remainingQty === 0) {
@@ -75,8 +113,8 @@ export const ExchangeProvider = ({ children }) => {
   };
 
   function fillOrders(side, price, quantity, userId) {
-    console.log(asks);
-    console.log(bids);
+    // console.log(asks);
+    // console.log(bids);
     let remainingQuantity = quantity;
     if (side === "bid") {
       for (let i = asks.length - 1; i >= 0; i--) {
@@ -89,11 +127,21 @@ export const ExchangeProvider = ({ children }) => {
             newAsks[i].quantity -= remainingQuantity;
             return newAsks;
           });
-          flipBalance(asks[i].selectedUserId, userId, Number(remainingQuantity), asks[i].price);
+          flipBalance(
+            asks[i].selectedUserId,
+            userId,
+            Number(remainingQuantity),
+            asks[i].price
+          );
           return 0;
         } else {
           remainingQuantity -= asks[i].quantity;
-          flipBalance(asks[i].selectedUserId, userId, Number(asks[i].quantity), asks[i].price);
+          flipBalance(
+            asks[i].selectedUserId,
+            userId,
+            Number(asks[i].quantity),
+            asks[i].price
+          );
           setAsks((prevAsks) => {
             const newAsks = [...prevAsks];
             newAsks.splice(i, 1);
@@ -113,14 +161,24 @@ export const ExchangeProvider = ({ children }) => {
             newBids[i].quantity -= remainingQuantity;
             return newBids;
           });
-          flipBalance(selectedUserId, Number(bids[i].selectedUserId), Number(remainingQuantity), price);
+          flipBalance(
+            selectedUserId,
+            Number(bids[i].selectedUserId),
+            Number(remainingQuantity),
+            price
+          );
           return 0;
         } else {
           remainingQuantity -= bids[i].quantity;
-          console.log("hello",1);
+          console.log("hello", 1);
 
-          flipBalance(selectedUserId, Number(bids[i].selectedUserId), Number(bids[i].quantity), price);
-          console.log("hello",3);
+          flipBalance(
+            selectedUserId,
+            Number(bids[i].selectedUserId),
+            Number(bids[i].quantity),
+            price
+          );
+          console.log("hello", 3);
           setBids((prevBids) => {
             const newBids = [...prevBids];
             newBids.splice(i, 1);
@@ -143,7 +201,6 @@ export const ExchangeProvider = ({ children }) => {
     user1.balances.USD += quantity * price;
     user2.balances.USD -= quantity * price;
   }
-
 
   function handleTextChange({ target }) {
     const updatedOffer = {
@@ -176,6 +233,33 @@ export const ExchangeProvider = ({ children }) => {
     setSelectedUserId(userId);
   };
 
+  // const findBestAskPrice = () => {
+  //   // Simulate the functionality of findBestAskPrice
+  //   // Replace this with your actual logic to fetch best ask price
+  //   const asks = [...]; // Replace with your array of asks
+  //   return Math.min(...asks.map((ask) => ask.price));
+  // };
+
+  // const findBestBidPrice = () => {
+  //   // Simulate the functionality of findBestBidPrice
+  //   // Replace this with your actual logic to fetch best bid price
+  //   const bids = [...]; // Replace with your array of bids
+  //   return Math.max(...bids.map((bid) => bid.price));
+  // };
+
+  // const handleCalculateQuote = () => {
+  //   if (side === 'bid') {
+  //     const bestAskPrice = findBestAskPrice();
+  //     setQuote(bestAskPrice * quantity);
+  //   } else if (side === 'ask') {
+  //     const bestBidPrice = findBestBidPrice();
+  //     setQuote(bestBidPrice * quantity);
+  //   } else {
+  //     setError("Invalid 'side' parameter. Please use 'bid' or 'ask'.");
+  //     setQuote(0);
+  //   }
+  // };
+
   return (
     <ExchangeContext.Provider
       value={{
@@ -188,6 +272,7 @@ export const ExchangeProvider = ({ children }) => {
         handleSelectionChange,
         order,
         selectUser,
+        handleCalculateQuote,
         bids,
         asks,
       }}
